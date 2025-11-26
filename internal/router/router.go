@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	apikey "github.com/TanishValesha/FlashSend-Notifier/internal/apiKey"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/auth"
 	"github.com/gin-gonic/gin"
 )
@@ -32,6 +33,12 @@ func Init() *gin.Engine {
 				"email":   c.GetString("email"),
 			})
 		})
+
+		keysGroup := protected.Group("/keys")
+
+		keysGroup.POST("/", apikey.CreateAPIKeyHandler)
+		keysGroup.GET("/", apikey.ListAllAPIKeys)
+		keysGroup.DELETE("/:id", apikey.DeleteAPIKeyHandler)
 	}
 
 	return router

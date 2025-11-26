@@ -31,7 +31,7 @@ func Init() {
 }
 
 func AutoMigrate() {
-	err := DB.AutoMigrate(&models.User{})
+	err := DB.AutoMigrate(&models.User{}, &models.APIKey{})
 
 	if err != nil {
 		log.Fatal("AutoMigrate failed:", err)
