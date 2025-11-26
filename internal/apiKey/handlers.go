@@ -61,3 +61,20 @@ func DeleteAPIKeyHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "API Key deleted"})
 }
+
+func ToggleAPIKey(c *gin.Context) {
+	userID := uint(c.GetFloat64("user_id"))
+	id := c.Param("id")
+
+	var exisintKey models.APIKey
+
+	if err := db.DB.Where("user_id = ? AND id = ?", userID, id).First(&exisintKey).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "API key not found"})
+		return
+	}
+
+	exisintKey.Active = !exisintKey.Active
+	db.DB.Save(&exisintKey)
+
+	c.JSON(http.StatusOK, gin.H{"message": "API key activation updated", "active": exisintKey.Active})
+}

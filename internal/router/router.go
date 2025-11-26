@@ -39,6 +39,7 @@ func Init() *gin.Engine {
 		keysGroup.POST("/", apikey.CreateAPIKeyHandler)
 		keysGroup.GET("/", apikey.ListAllAPIKeys)
 		keysGroup.DELETE("/:id", apikey.DeleteAPIKeyHandler)
+		keysGroup.PATCH("/:id", apikey.ToggleAPIKey)
 	}
 
 	return router
