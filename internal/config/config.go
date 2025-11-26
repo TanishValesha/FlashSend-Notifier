@@ -12,6 +12,7 @@ type Config struct {
 	JwtSecret          string
 	APIKeyHmacSecret   string
 	JwtExpirationHours string
+	DB                 string
 }
 
 var Cfg Config
@@ -24,6 +25,7 @@ func Load() {
 		JwtSecret:          mustGet("JWT_SECRET"),
 		APIKeyHmacSecret:   mustGet("APIKEY_HMAC_SECRET"),
 		JwtExpirationHours: getEnv("JWT_EXPIRATION_HOURS", "24"),
+		DB:                 mustGet("DATABASE_URL"),
 	}
 
 }

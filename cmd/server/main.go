@@ -4,11 +4,15 @@ import (
 	"log"
 
 	"github.com/TanishValesha/FlashSend-Notifier/internal/config"
+	"github.com/TanishValesha/FlashSend-Notifier/internal/db"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/router"
 )
 
 func main() {
 	config.Load()
+
+	db.Init()
+	db.AutoMigrate()
 
 	router := router.Init()
 
