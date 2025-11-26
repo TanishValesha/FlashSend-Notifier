@@ -1,3 +1,10 @@
+// docker run --name notifly-postgres \
+//   -e POSTGRES_USER=postgres \
+//   -e POSTGRES_PASSWORD=postgres \
+//   -e POSTGRES_DB=notifly \
+//   -p 5432:5432 \
+//   -d postgres:latest
+
 package db
 
 import (
@@ -7,7 +14,6 @@ import (
 	"github.com/TanishValesha/FlashSend-Notifier/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -15,9 +21,7 @@ var DB *gorm.DB
 func Init() {
 	var err error
 
-	DB, err = gorm.Open(postgres.Open(config.Cfg.DB), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	DB, err = gorm.Open(postgres.Open(config.Cfg.DB))
 
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
