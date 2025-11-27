@@ -5,12 +5,18 @@ import (
 
 	apikey "github.com/TanishValesha/FlashSend-Notifier/internal/apiKey"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/auth"
-	notify "github.com/TanishValesha/FlashSend-Notifier/internal/notify/email"
+	notify "github.com/TanishValesha/FlashSend-Notifier/internal/notify"
 	"github.com/gin-gonic/gin"
 )
 
 func Init() *gin.Engine {
 	router := gin.Default()
+
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
 
 	apiGroup := router.Group("/api")
 
@@ -42,6 +48,8 @@ func Init() *gin.Engine {
 		notifyGroup.Use(notify.APIKeyMiddleware())
 		{
 			notifyGroup.POST("/email", notify.EmailNotifyHandler)
+			notifyGroup.POST("/sms", notify.SMSNotifyHandler)
+
 		}
 	}
 

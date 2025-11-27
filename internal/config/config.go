@@ -17,6 +17,9 @@ type Config struct {
 	SMTPAppPassword    string
 	SMTPHost           string
 	SMTPPort           string
+	TwilioAccountSID   string
+	TwilioAuthToken    string
+	TwilioPhoneNumber  string
 }
 
 var Cfg Config
@@ -34,6 +37,9 @@ func Load() {
 		SMTPAppPassword:    mustGet("SMTP_APP_PASSWORD"),
 		SMTPHost:           mustGet("SMTP_HOST"),
 		SMTPPort:           mustGet("SMTP_PORT"),
+		TwilioAccountSID:   mustGet("TWILIO_ACCOUNT_SID"),
+		TwilioAuthToken:    mustGet("TWILIO_AUTH_TOKEN"),
+		TwilioPhoneNumber:  mustGet("TWILIO_PHONE_NUMBER"),
 	}
 
 }
