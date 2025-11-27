@@ -5,7 +5,7 @@ import (
 
 	apikey "github.com/TanishValesha/FlashSend-Notifier/internal/apiKey"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/auth"
-	"github.com/TanishValesha/FlashSend-Notifier/internal/notify"
+	notify "github.com/TanishValesha/FlashSend-Notifier/internal/notify/email"
 	"github.com/gin-gonic/gin"
 )
 
