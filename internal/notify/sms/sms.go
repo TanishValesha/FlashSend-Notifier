@@ -7,11 +7,11 @@ import (
 )
 
 type SMSRequest struct {
-	To      string `json:"to"`
-	Message string `json:"message"`
+	To   string `json:"to"`
+	Body string `json:"body"`
 }
 
-func SendSMS(to string, message string) error {
+func SendSMS(to string, body string) error {
 	client := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: config.Cfg.TwilioAccountSID,
 		Password: config.Cfg.TwilioAuthToken,
@@ -20,7 +20,7 @@ func SendSMS(to string, message string) error {
 	params := &openapi.CreateMessageParams{}
 	params.SetTo(to)
 	params.SetFrom(config.Cfg.TwilioPhoneNumber)
-	params.SetBody(message)
+	params.SetBody(body)
 
 	_, err := client.Api.CreateMessage(params)
 	return err

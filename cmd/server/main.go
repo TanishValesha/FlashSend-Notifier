@@ -12,6 +12,7 @@ func main() {
 	config.Load()
 
 	db.Init()
+	db.CreateEnums()
 	db.AutoMigrate()
 
 	router := router.Init()

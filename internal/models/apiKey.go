@@ -3,9 +3,9 @@ package models
 import "time"
 
 type APIKey struct {
-	ID        uint   `gorm:"primaryKey"`
-	UserID    uint   `gorm:"index;not null"`
-	Key       string `gorm:"uniqueIndex;not null"`
-	Active    bool   `gorm:"default:true"`
-	CreatedAt time.Time
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	UserID    uint      `json:"userId" gorm:"index;not null"`
+	Key       string    `json:"key" gorm:"uniqueIndex;not null"`
+	Active    bool      `json:"active" gorm:"default:true"`
+	CreatedAt time.Time `json:"createdAt"`
 }

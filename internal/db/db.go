@@ -30,8 +30,28 @@ func Init() {
 	log.Println("Connected to DB")
 }
 
+func CreateEnums() {
+	enumSQL := `
+	DO $$ BEGIN
+		CREATE TYPE channel_type AS ENUM ('email', 'sms', 'whatsapp');
+	EXCEPTION
+		WHEN duplicate_object THEN null;
+	END $$;
+
+	DO $$ BEGIN
+		CREATE TYPE status_type AS ENUM ('sent', 'failed');
+	EXCEPTION
+		WHEN duplicate_object THEN null;
+	END $$;
+	`
+
+	if err := DB.Exec(enumSQL).Error; err != nil {
+		log.Fatalf("Failed to create enums: %v", err)
+	}
+}
+
 func AutoMigrate() {
-	err := DB.AutoMigrate(&models.User{}, &models.APIKey{})
+	err := DB.AutoMigrate(&models.User{}, &models.APIKey{}, &models.Notification{})
 
 	if err != nil {
 		log.Fatal("AutoMigrate failed:", err)

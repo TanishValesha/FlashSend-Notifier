@@ -5,6 +5,7 @@ import (
 
 	apikey "github.com/TanishValesha/FlashSend-Notifier/internal/apiKey"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/auth"
+	"github.com/TanishValesha/FlashSend-Notifier/internal/logger"
 	notify "github.com/TanishValesha/FlashSend-Notifier/internal/notify"
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +36,8 @@ func Init() *gin.Engine {
 				"email":   c.GetString("email"),
 			})
 		})
+
+		protected.GET("/logs", logger.GetLogsHandler)
 
 		keysGroup := protected.Group("/keys")
 		{
