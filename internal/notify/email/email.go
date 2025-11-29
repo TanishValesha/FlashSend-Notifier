@@ -10,7 +10,7 @@ import (
 type EmailRequest struct {
 	To      string `json:"to"`
 	Subject string `json:"subject"`
-	Message string `json:"message"`
+	Body    string `json:"body"`
 }
 
 func SendEmail(to, subject, body string) error {

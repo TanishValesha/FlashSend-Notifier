@@ -49,6 +49,7 @@ func Init() *gin.Engine {
 		{
 			notifyGroup.POST("/email", notify.EmailNotifyHandler)
 			notifyGroup.POST("/sms", notify.SMSNotifyHandler)
+			notifyGroup.POST("/send", notify.UnifiedNotifyHandler)
 
 		}
 	}
