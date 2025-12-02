@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LogNotification(entry models.Notification) error {
-	return db.DB.Create(&entry).Error
+func LogNotification(entry *models.Notification) error {
+	return db.DB.Create(entry).Error
 }
 
 func GetLogsHandler(c *gin.Context) {
