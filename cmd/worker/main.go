@@ -11,11 +11,14 @@ import (
 
 func main() {
 	config.Load()
-
 	db.Init()
-
 	rabbitmq.InitRabbitMQ("amqp://user:password@localhost:5672/")
 
 	log.Println("Starting Email Worker...")
-	workers.StartEmailWorker()
+	go workers.StartEmailWorker()
+
+	log.Println("Starting SMS Worker...")
+	go workers.StartSMSWorker()
+
+	select {}
 }

@@ -14,5 +14,5 @@ type QueueMessage struct {
 	To                  string      `json:"to"`
 	Subject             string      `json:"subject,omitempty"`
 	Body                string      `json:"body,omitempty"`
-	Attempts            int         `json:"attempts" gorm:"default:1"`
+	Retries             int         `json:"retries" gorm:"default:0"`
 }

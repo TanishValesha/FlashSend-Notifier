@@ -19,8 +19,8 @@ type EmailRequest struct {
 func SendEmail(to, subject, body string) error {
 	from := config.Cfg.SMTPEmail
 	password := config.Cfg.SMTPAppPassword
-	smtpHost := config.Cfg.SMTPHost // e.g. smtp.gmail.com
-	smtpPort := config.Cfg.SMTPPort // usually 587
+	smtpHost := config.Cfg.SMTPHost
+	smtpPort := config.Cfg.SMTPPort
 
 	// Build email
 	message := "From: " + from + "\n" +

@@ -68,32 +68,37 @@ func SMSNotifyHandler(c *gin.Context) {
 		return
 	}
 
-	err := sms.SendSMS(req.To, req.Body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		entry = models.Notification{
-			UserID:  user_id,
-			Channel: "sms",
-			To:      req.To,
-			Body:    req.Body,
-			Status:  "failed",
-			Error:   err.Error(),
-		}
-		logger.LogNotification(&entry)
-		return
-	}
-
 	entry = models.Notification{
-		UserID:  user_id,
-		Channel: "sms",
-		To:      req.To,
-		Body:    req.Body,
-		Status:  "sent",
+		UserID:   user_id,
+		Channel:  "sms",
+		To:       req.To,
+		Body:     req.Body,
+		Status:   models.StatusQueued,
+		Provider: "twilio",
 	}
 
 	logger.LogNotification(&entry)
 
-	c.JSON(http.StatusOK, gin.H{"message": "SMS sent"})
+	msg := rabbitmq.QueueMessage{
+		NotificationID:      entry.ID,
+		NotificationChannel: rabbitmq.ChannelSMS,
+		To:                  req.To,
+		Body:                req.Body,
+	}
+
+	if err := rabbitmq.PublishMessageToQueue(msg); err != nil {
+		entry.Status = models.StatusFailed
+		entry.Error = err.Error()
+		db.DB.Save(&entry)
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Queue publish failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "SMS queued and will be sent shortly",
+		"id":      entry.ID,
+	})
 }
 
 func UnifiedNotifyHandler(c *gin.Context) {
