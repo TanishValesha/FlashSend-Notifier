@@ -13,6 +13,7 @@ const (
 	StatusQueued     StatusType = "queued"
 	StatusProcessing StatusType = "processing"
 	StatusSent       StatusType = "sent"
+	StatusScheduled  StatusType = "scheduled"
 	StatusFailed     StatusType = "failed"
 	StatusRetrying   StatusType = "retrying"
 	StatusDead       StatusType = "dead"
@@ -29,8 +30,10 @@ type Notification struct {
 	Provider      string      `json:"provider,omitempty" gorm:"type:varchar(50)"`
 	Error         string      `json:"error,omitempty" gorm:"type:text"`
 	Retries       int         `json:"retries" gorm:"default:0"`
-	MaxRetries    int         `json:"maxRetries" gorm:"default:3"`
-	NextAttemptAt *time.Time  `json:"nextAttempt,omitempty"`
-	CreatedAt     time.Time   `json:"createdAt"`
-	UpdatedAt     time.Time   `json:"updatedAt"`
+	IsScheduled   bool        `json:"is_scheduled" gorm:"default:false"`
+	ScheduledAt   *time.Time  `json:"scheduled_at,omitempty"`
+	MaxRetries    int         `json:"max_retries" gorm:"default:3"`
+	NextAttemptAt *time.Time  `json:"next_attempt_at,omitempty"`
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     time.Time   `json:"updated_at"`
 }

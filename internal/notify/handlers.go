@@ -3,7 +3,9 @@ package notify
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	utils "github.com/TanishValesha/FlashSend-Notifier/internal"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/db"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/logger"
 	models "github.com/TanishValesha/FlashSend-Notifier/internal/models"
@@ -97,6 +99,54 @@ func SMSNotifyHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "SMS queued and will be sent shortly",
+		"id":      entry.ID,
+	})
+}
+
+func ScheduledNotificationHandler(c *gin.Context) {
+	var req struct {
+		Channel     string  `json:"channel"`
+		To          string  `json:"to"`
+		Subject     *string `json:"subject,omitempty"`
+		Body        string  `json:"body"`
+		ScheduledAt *string `json:"scheduled_at,omitempty"`
+	}
+	user_id := uint(c.GetFloat64("user_id"))
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+
+	parsedTime, err := utils.ParseDateTime(*req.ScheduledAt)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if parsedTime.Before(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Scheduled time must be in the future"})
+		return
+	}
+
+	entry := models.Notification{
+		UserID:      user_id,
+		Channel:     models.ChannelType(req.Channel),
+		To:          req.To,
+		Subject:     req.Subject,
+		Body:        req.Body,
+		IsScheduled: true,
+		ScheduledAt: parsedTime,
+		Status:      models.StatusScheduled,
+		MaxRetries:  3,
+	}
+
+	if err := db.DB.Create(&entry).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "DB insert failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Scheduled notification created",
 		"id":      entry.ID,
 	})
 }
