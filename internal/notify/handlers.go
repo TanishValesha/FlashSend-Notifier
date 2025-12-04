@@ -2,6 +2,7 @@ package notify
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -109,15 +110,15 @@ func ScheduledNotificationHandler(c *gin.Context) {
 		To          string  `json:"to"`
 		Subject     *string `json:"subject,omitempty"`
 		Body        string  `json:"body"`
-		ScheduledAt *string `json:"scheduled_at,omitempty"`
+		ScheduledAt string  `json:"scheduled_at"`
 	}
 	user_id := uint(c.GetFloat64("user_id"))
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "message": err.Error()})
 		return
 	}
-
-	parsedTime, err := utils.ParseDateTime(*req.ScheduledAt)
+	log.Printf("Scheduling notification: %+v", req)
+	parsedTime, err := utils.ParseDateTime(req.ScheduledAt)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

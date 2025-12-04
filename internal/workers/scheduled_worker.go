@@ -10,7 +10,7 @@ import (
 )
 
 func StartScheduledWorker() {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(1 * time.Minute)
 
 	for range ticker.C {
 		processDueScheduledNotifications()
@@ -41,12 +41,24 @@ func enqueueScheduledJob(job *models.Notification) {
 	entry.Status = models.StatusQueued
 	db.DB.Save(&entry)
 
-	msg := rabbitmq.QueueMessage{
-		NotificationID:      entry.ID,
-		NotificationChannel: rabbitmq.ChannelEmail,
-		To:                  entry.To,
-		Subject:             *entry.Subject,
-		Body:                entry.Body,
+	var msg rabbitmq.QueueMessage
+
+	switch entry.Channel {
+	case "sms":
+		msg = rabbitmq.QueueMessage{
+			NotificationID:      entry.ID,
+			NotificationChannel: rabbitmq.ChannelSMS,
+			To:                  entry.To,
+			Body:                entry.Body,
+		}
+	case "email":
+		msg = rabbitmq.QueueMessage{
+			NotificationID:      entry.ID,
+			NotificationChannel: rabbitmq.ChannelEmail,
+			To:                  entry.To,
+			Subject:             *entry.Subject,
+			Body:                entry.Body,
+		}
 	}
 
 	err := rabbitmq.PublishMessageToQueue(msg)

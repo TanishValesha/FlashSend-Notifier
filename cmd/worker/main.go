@@ -20,5 +20,8 @@ func main() {
 	log.Println("Starting SMS Worker...")
 	go workers.StartSMSWorker()
 
+	log.Println("Starting Scheduled Notification Worker...")
+	go workers.StartScheduledWorker()
+
 	select {}
 }
