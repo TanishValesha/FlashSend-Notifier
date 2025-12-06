@@ -20,6 +20,9 @@ type Config struct {
 	TwilioAccountSID   string
 	TwilioAuthToken    string
 	TwilioPhoneNumber  string
+	VonageAPIKey       string
+	VonageAPISecret    string
+	VonageFrom         string
 }
 
 var Cfg Config
@@ -40,6 +43,9 @@ func Load() {
 		TwilioAccountSID:   mustGet("TWILIO_ACCOUNT_SID"),
 		TwilioAuthToken:    mustGet("TWILIO_AUTH_TOKEN"),
 		TwilioPhoneNumber:  mustGet("TWILIO_PHONE_NUMBER"),
+		VonageAPIKey:       mustGet("VONAGE_API_KEY"),
+		VonageAPISecret:    mustGet("VONAGE_API_SECRET"),
+		VonageFrom:         mustGet("VONAGE_FROM"),
 	}
 
 }

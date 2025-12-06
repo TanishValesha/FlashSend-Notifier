@@ -28,13 +28,12 @@ func EmailNotifyHandler(c *gin.Context) {
 	}
 
 	entry = models.Notification{
-		UserID:   user_id,
-		Channel:  "email",
-		To:       req.To,
-		Subject:  &req.Subject,
-		Body:     req.Body,
-		Status:   models.StatusQueued,
-		Provider: "smtp",
+		UserID:  user_id,
+		Channel: "email",
+		To:      req.To,
+		Subject: &req.Subject,
+		Body:    req.Body,
+		Status:  models.StatusQueued,
 	}
 
 	logger.LogNotification(&entry)
@@ -72,12 +71,11 @@ func SMSNotifyHandler(c *gin.Context) {
 	}
 
 	entry = models.Notification{
-		UserID:   user_id,
-		Channel:  "sms",
-		To:       req.To,
-		Body:     req.Body,
-		Status:   models.StatusQueued,
-		Provider: "twilio",
+		UserID:  user_id,
+		Channel: "sms",
+		To:      req.To,
+		Body:    req.Body,
+		Status:  models.StatusQueued,
 	}
 
 	logger.LogNotification(&entry)

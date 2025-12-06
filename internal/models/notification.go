@@ -27,7 +27,6 @@ type Notification struct {
 	Subject       *string     `json:"subject,omitempty" gorm:"type:varchar(255)"`
 	Body          string      `json:"body" gorm:"type:text"`
 	Status        StatusType  `json:"status" gorm:"type:status_type"`
-	Provider      string      `json:"provider,omitempty" gorm:"type:varchar(50)"`
 	Error         string      `json:"error,omitempty" gorm:"type:text"`
 	Retries       int         `json:"retries" gorm:"default:0"`
 	IsScheduled   bool        `json:"is_scheduled" gorm:"default:false"`

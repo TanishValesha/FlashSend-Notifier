@@ -102,7 +102,7 @@ func StartSMSWorker() {
 		entry.Status = models.StatusProcessing
 		db.DB.Save(&entry)
 
-		err := sms.SendSMS(payload.To, payload.Body)
+		err := sms.SendSMSWithFailover(payload.To, payload.Body)
 		if err != nil {
 			entry.Retries++
 			db.DB.Save(&entry)
