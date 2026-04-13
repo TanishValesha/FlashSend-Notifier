@@ -2,21 +2,22 @@
 
 FlashSend is a **Go-based distributed notification delivery system** designed to reliably send SMS, Email, and scheduled notifications at scale. It uses a **RabbitMQ-powered asynchronous worker architecture** with retries, dead-letter queues (DLQ), DB-backed scheduling, and automatic SMS provider failover (Twilio → Vonage) to guarantee delivery even during traffic spikes and third-party outages.
 <img width="1828" height="765" alt="image" src="https://github.com/user-attachments/assets/0b78217a-84f2-41ef-8424-521ec9672a7a" />
+
 ---
 
 ## Features
 
-* Send SMS and Email notifications
-* Schedule notifications for future delivery
-* RabbitMQ asynchronous processing
-* Exponential retry pipelines
-* Dead Letter Queues (DLQ) for fault isolation
-* Automatic SMS provider failover (Twilio → Vonage)
-* Horizontally scalable distributed workers
-* JWT authentication & API-key based access
-* PostgreSQL-backed persistence
-* Status-driven notification lifecycle
-* Human-readable 24-hour time scheduling
+- Send SMS and Email notifications
+- Schedule notifications for future delivery
+- RabbitMQ asynchronous processing
+- Exponential retry pipelines
+- Dead Letter Queues (DLQ) for fault isolation
+- Automatic SMS provider failover (Twilio → Vonage)
+- Horizontally scalable distributed workers
+- JWT authentication & API-key based access
+- PostgreSQL-backed persistence
+- Status-driven notification lifecycle
+- Human-readable 24-hour time scheduling
 
 ---
 
@@ -78,6 +79,7 @@ APIKEY_HMAC_SECRET=your-apikey-secret
 JWT_EXPIRATION_HOURS=24
 
 DATABASE_URL=postgres://user:password@localhost:5432/flashsend?sslmode=disable
+AMQP_URL=
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -114,6 +116,7 @@ go run ./cmd/server/main.go
 ```bash
 go run ./cmd/worker/main.go
 ```
+
 ---
 
 # API Documentation
@@ -263,14 +266,12 @@ go run ./cmd/worker/main.go
 
 ---
 
-
 ## Why FlashSend?
 
 FlashSend demonstrates real-world **distributed systems design patterns** such as:
 
-* Competing consumer worker pools
-* Queue-based backpressure handling
-* Fault-tolerant retry pipelines
-* Scheduled job orchestration
-* Provider failover and resiliency design
-
+- Competing consumer worker pools
+- Queue-based backpressure handling
+- Fault-tolerant retry pipelines
+- Scheduled job orchestration
+- Provider failover and resiliency design
