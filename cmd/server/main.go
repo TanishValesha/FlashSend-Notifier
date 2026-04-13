@@ -16,7 +16,7 @@ func main() {
 	db.CreateEnums()
 	db.AutoMigrate()
 
-	rabbitmq.InitRabbitMQ("amqp://user:password@localhost:5672/")
+	rabbitmq.InitRabbitMQ(config.Cfg.AMQPURL)
 	rabbitmq.SetupQueue()
 
 	router := router.Init()

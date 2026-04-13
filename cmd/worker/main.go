@@ -12,7 +12,7 @@ import (
 func main() {
 	config.Load()
 	db.Init()
-	rabbitmq.InitRabbitMQ("amqp://user:password@localhost:5672/")
+	rabbitmq.InitRabbitMQ(config.Cfg.AMQPURL)
 
 	log.Println("Starting Email Worker...")
 	go workers.StartEmailWorker()

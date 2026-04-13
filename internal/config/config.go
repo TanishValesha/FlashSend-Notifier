@@ -13,6 +13,7 @@ type Config struct {
 	APIKeyHmacSecret   string
 	JwtExpirationHours string
 	DB                 string
+	AMQPURL            string
 	SMTPEmail          string
 	SMTPAppPassword    string
 	SMTPHost           string
@@ -36,6 +37,7 @@ func Load() {
 		APIKeyHmacSecret:   mustGet("APIKEY_HMAC_SECRET"),
 		JwtExpirationHours: getEnv("JWT_EXPIRATION_HOURS", "24"),
 		DB:                 mustGet("DATABASE_URL"),
+		AMQPURL:            mustGet("AMQP_URL"),
 		SMTPEmail:          mustGet("SMTP_EMAIL"),
 		SMTPAppPassword:    mustGet("SMTP_APP_PASSWORD"),
 		SMTPHost:           mustGet("SMTP_HOST"),

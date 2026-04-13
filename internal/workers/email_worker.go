@@ -21,8 +21,22 @@ func StartEmailWorker() {
 		json.Unmarshal(msg.Body, &payload)
 		log.Printf("Messages: %s", msg.Body)
 
+		if payload.NotificationID == 0 {
+			log.Println("Invalid notification ID (0)")
+
+			msg.Ack(false)
+			continue
+		}
+
 		var entry models.Notification
-		db.DB.First(&entry, payload.NotificationID)
+		errDB := db.DB.First(&entry, payload.NotificationID).Error
+		if errDB != nil {
+			log.Println("Notification not found:", payload.NotificationID)
+
+			// VERY IMPORTANT: ACK and skip
+			msg.Ack(false)
+			continue
+		}
 
 		entry.Status = models.StatusProcessing
 		db.DB.Save(&entry)
