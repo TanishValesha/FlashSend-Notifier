@@ -1,5 +1,7 @@
 # FlashSend — Distributed Notification Platform
 
+Documentation Link - https://www.postman.com/aviation-explorer-43162805/workspace/flashsend/collection/32893876-55304a29-1526-4b46-accd-74767dc59941?action=share&creator=32893876
+
 FlashSend is a **Go-based distributed notification delivery system** designed to reliably send SMS, Email, and scheduled notifications at scale. It uses a **RabbitMQ-powered asynchronous worker architecture** with retries, dead-letter queues (DLQ), DB-backed scheduling, and automatic SMS provider failover (Twilio → Vonage) to guarantee delivery even during traffic spikes and third-party outages.
 <img width="1828" height="765" alt="image" src="https://github.com/user-attachments/assets/0b78217a-84f2-41ef-8424-521ec9672a7a" />
 
