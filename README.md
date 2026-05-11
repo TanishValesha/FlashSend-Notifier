@@ -233,7 +233,7 @@ go run ./cmd/worker/main.go
   "to": "+919999999999",
   "subject": "optional",
   "body": "Reminder",
-  "scheduleAt": "2025-02-20 18:30"
+  "scheduleAt": "2025-02-20 18:30 IST"
 }
 ```
 

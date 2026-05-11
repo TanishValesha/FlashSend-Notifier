@@ -28,7 +28,7 @@ func JWTMiddleware() gin.HandlerFunc {
 				return nil, jwt.ErrTokenMalformed
 			}
 
-			return jwtSecret, nil
+			return getJWTSecret(), nil
 		})
 
 		if err != nil || !token.Valid {
