@@ -110,6 +110,13 @@ func StartSMSWorker() {
 		json.Unmarshal(msg.Body, &payload)
 		log.Printf("Messages: %s", msg.Body)
 
+		if payload.NotificationID == 0 {
+			log.Println("Invalid notification ID (0)")
+
+			msg.Ack(false)
+			continue
+		}
+
 		var entry models.Notification
 		db.DB.First(&entry, payload.NotificationID)
 

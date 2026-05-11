@@ -8,6 +8,8 @@ import (
 )
 
 func PublishMessageToQueue(msg QueueMessage) error {
+	mu.Lock()
+	defer mu.Unlock()
 	switch msg.NotificationChannel {
 	case ChannelEmail:
 		body, err := json.Marshal(msg)

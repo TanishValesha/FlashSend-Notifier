@@ -2,12 +2,14 @@ package rabbitmq
 
 import (
 	"log"
+	"sync"
 
 	"github.com/rabbitmq/amqp091-go"
 )
 
 var Conn *amqp091.Connection
 var Ch *amqp091.Channel
+var mu sync.Mutex
 
 func InitRabbitMQ(url string) error {
 	var err error
