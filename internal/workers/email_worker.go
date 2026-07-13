@@ -38,6 +38,13 @@ func StartEmailWorker() {
 			continue
 		}
 
+		// Idempotency: skip if already in a terminal state
+		if entry.Status == models.StatusSent || entry.Status == models.StatusFailed {
+			log.Printf("Idempotency: notification %d already %s, skipping", payload.NotificationID, entry.Status)
+			msg.Ack(false)
+			continue
+		}
+
 		entry.Status = models.StatusProcessing
 		db.DB.Save(&entry)
 
@@ -119,6 +126,13 @@ func StartSMSWorker() {
 
 		var entry models.Notification
 		db.DB.First(&entry, payload.NotificationID)
+
+		// Idempotency: skip if already in a terminal state
+		if entry.Status == models.StatusSent || entry.Status == models.StatusFailed {
+			log.Printf("Idempotency: notification %d already %s, skipping", payload.NotificationID, entry.Status)
+			msg.Ack(false)
+			continue
+		}
 
 		entry.Status = models.StatusProcessing
 		db.DB.Save(&entry)
