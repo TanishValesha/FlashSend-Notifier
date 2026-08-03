@@ -16,6 +16,7 @@ func main() {
 	config.Load()
 	db.Init()
 	rabbitmq.InitRabbitMQ(config.Cfg.AMQPURL)
+	rabbitmq.SetupQueue()
 
 	log.Println("Starting Email Worker...")
 	go workers.StartEmailWorker()

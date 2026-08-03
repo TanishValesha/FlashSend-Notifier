@@ -21,6 +21,9 @@ func StartEmailWorker() {
 			continue
 		}
 
+		// Ensure queues exist before consuming (idempotent, safe on reconnect)
+		rabbitmq.SetupQueue()
+
 		msgs, err := ch.Consume("email_queue", "", false, false, false, false, nil)
 		if err != nil {
 			log.Printf("Failed to consume from email_queue: %v, retrying in 3s...", err)
@@ -136,6 +139,9 @@ func StartSMSWorker() {
 			time.Sleep(3 * time.Second)
 			continue
 		}
+
+		// Ensure queues exist before consuming (idempotent, safe on reconnect)
+		rabbitmq.SetupQueue()
 
 		msgs, err := ch.Consume("sms_queue", "", false, false, false, false, nil)
 		if err != nil {
