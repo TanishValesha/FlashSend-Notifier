@@ -27,6 +27,9 @@ func main() {
 	log.Println("Starting Scheduled Notification Worker...")
 	go workers.StartScheduledWorker()
 
+	log.Println("Starting Health Server...")
+	workers.StartHealthServer()
+
 	log.Println("All workers started. Waiting for shutdown signal...")
 
 	// Block until shutdown signal
@@ -37,6 +40,9 @@ func main() {
 
 	// Close RabbitMQ connection to stop consuming
 	rabbitmq.Close()
+
+	// Shut down the health server
+	workers.ShutdownHealthServer()
 
 	log.Println("All workers stopped. Exiting.")
 }

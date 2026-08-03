@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flashsend-config
+  namespace: flashsend-prod
+data:
+  BIND_ADDR: ":8080"
+  HEALTH_ADDR: ":8081"
+  JWT_EXPIRATION_HOURS: "1"
+  SMTP_HOST: "smtp.gmail.com"
+  SMTP_PORT: "587"
+  VONAGE_FROM: "917028611078"
