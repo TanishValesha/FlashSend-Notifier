@@ -1,14 +1,97 @@
 services:
-  rabbitmq:
-    image: rabbitmq:management
-    container_name: rabbitmq
+  postgres:
+    image: postgres:16-alpine
+    container_name: flashsend-postgres
     environment:
-      - RABBITMQ_DEFAULT_USER=user
-      - RABBITMQ_DEFAULT_PASS=password
+      POSTGRES_USER: flashsend
+      POSTGRES_PASSWORD: flashsend
+      POSTGRES_DB: flashsend
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flashsend -d flashsend"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - flashsend-net
+
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    container_name: flashsend-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: flashsend
+      RABBITMQ_DEFAULT_PASS: flashsend
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - flashsend-net
+
+  flashsend-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BINARY: server
+        VERSION: "${VERSION:-dev}"
+        BUILD_TIME: "${BUILD_TIME:-unknown}"
+    container_name: flashsend-server
+    environment:
+      BIND_ADDR: ":8080"
+      DATABASE_URL: "postgres://flashsend:flashsend@postgres:5432/flashsend?sslmode=disable"
+      AMQP_URL: "amqp://flashsend:flashsend@rabbitmq:5672/"
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - flashsend-net
+
+  flashsend-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BINARY: worker
+        VERSION: "${VERSION:-dev}"
+        BUILD_TIME: "${BUILD_TIME:-unknown}"
+    container_name: flashsend-worker
+    environment:
+      DATABASE_URL: "postgres://flashsend:flashsend@postgres:5432/flashsend?sslmode=disable"
+      AMQP_URL: "amqp://flashsend:flashsend@rabbitmq:5672/"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - flashsend-net
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
 
 networks:
-  default:
+  flashsend-net:
     driver: bridge

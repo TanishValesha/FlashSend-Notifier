@@ -5,8 +5,10 @@ import (
 
 	apikey "github.com/TanishValesha/FlashSend-Notifier/internal/apiKey"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/auth"
+	"github.com/TanishValesha/FlashSend-Notifier/internal/db"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/logger"
 	notify "github.com/TanishValesha/FlashSend-Notifier/internal/notify"
+	rabbitmq "github.com/TanishValesha/FlashSend-Notifier/internal/rabbitMQ"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +20,34 @@ func Init(version, buildTime string) *gin.Engine {
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
+		})
+	})
+
+	// Health endpoint — checks DB and RabbitMQ connectivity.
+	// Used by Kubernetes liveness/readiness probes.
+	router.GET("/health", func(c *gin.Context) {
+		dbStatus := "ok"
+		mqStatus := "ok"
+
+		if err := db.DB.Raw("SELECT 1").Error; err != nil {
+			dbStatus = "unhealthy"
+		}
+
+		if !rabbitmq.IsConnected() {
+			mqStatus = "unhealthy"
+		}
+
+		status := http.StatusOK
+		if dbStatus != "ok" || mqStatus != "ok" {
+			status = http.StatusServiceUnavailable
+		}
+
+		c.JSON(status, gin.H{
+			"status":    map[bool]string{true: "healthy", false: "unhealthy"}[status == http.StatusOK],
+			"db":        dbStatus,
+			"rabbitmq":  mqStatus,
+			"version":   version,
+			"buildTime": buildTime,
 		})
 	})
 
