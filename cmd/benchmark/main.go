@@ -33,14 +33,19 @@ func main() {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
 
+	ch := rabbitmq.GetChannel()
+	if ch == nil {
+		log.Fatalf("Failed to get RabbitMQ channel")
+	}
+
 	// Declare a durable queue
-	_, err = rabbitmq.Ch.QueueDeclare(benchmarkQueue, true, false, false, false, nil)
+	_, err = ch.QueueDeclare(benchmarkQueue, true, false, false, false, nil)
 	if err != nil {
 		log.Fatalf("Failed to declare benchmark queue: %v", err)
 	}
 
 	// Purge any leftover messages
-	_, err = rabbitmq.Ch.QueuePurge(benchmarkQueue, false)
+	_, err = ch.QueuePurge(benchmarkQueue, false)
 	if err != nil {
 		log.Fatalf("Failed to purge benchmark queue: %v", err)
 	}
@@ -61,7 +66,7 @@ func main() {
 		}
 
 		body, _ := json.Marshal(msg)
-		err := rabbitmq.Ch.Publish(
+		err := ch.Publish(
 			"",
 			benchmarkQueue,
 			false,
@@ -137,15 +142,21 @@ func main() {
 
 	// Cancel all consumers to clean up
 	for w := 0; w < numWorkers; w++ {
-		_ = rabbitmq.Ch.Cancel(fmt.Sprintf("benchmark-worker-%d", w), false)
+		_ = ch.Cancel(fmt.Sprintf("benchmark-worker-%d", w), false)
 	}
 
 	os.Exit(0)
 }
 
 func consumeWorker(id int) {
+	conn := rabbitmq.GetConnection()
+	if conn == nil {
+		log.Printf("Worker %d failed to get connection", id)
+		return
+	}
+
 	// Each worker gets its own channel for better concurrency
-	ch, err := rabbitmq.Conn.Channel()
+	ch, err := conn.Channel()
 	if err != nil {
 		log.Printf("Worker %d failed to open channel: %v", id, err)
 		return
