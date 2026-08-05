@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
         - name: server
-          image: flashsend-server:latest
-          imagePullPolicy: IfNotPresent
+          image: admin3005/flashsend-server:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http

@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
         - name: worker
-          image: flashsend-worker:latest
-          imagePullPolicy: IfNotPresent
+          image: admin3005/flashsend-worker:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
               name: health
