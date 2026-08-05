@@ -28,8 +28,12 @@ func main() {
 	db.CreateEnums()
 	db.AutoMigrate()
 
-	rabbitmq.InitRabbitMQ(config.Cfg.AMQPURL)
-	rabbitmq.SetupQueue()
+	if err := rabbitmq.InitRabbitMQ(config.Cfg.AMQPURL); err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	if err := rabbitmq.SetupQueue(); err != nil {
+		log.Fatalf("Failed to setup queues: %v", err)
+	}
 
 	r := router.Init(Version, BuildTime)
 

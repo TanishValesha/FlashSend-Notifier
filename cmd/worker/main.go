@@ -15,8 +15,12 @@ import (
 func main() {
 	config.Load()
 	db.Init()
-	rabbitmq.InitRabbitMQ(config.Cfg.AMQPURL)
-	rabbitmq.SetupQueue()
+	if err := rabbitmq.InitRabbitMQ(config.Cfg.AMQPURL); err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	if err := rabbitmq.SetupQueue(); err != nil {
+		log.Fatalf("Failed to setup queues: %v", err)
+	}
 
 	log.Println("Starting Email Worker...")
 	go workers.StartEmailWorker()

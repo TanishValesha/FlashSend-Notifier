@@ -22,7 +22,9 @@ func StartEmailWorker() {
 		}
 
 		// Ensure queues exist before consuming (idempotent, safe on reconnect)
-		rabbitmq.SetupQueue()
+		if err := rabbitmq.SetupQueue(); err != nil {
+			log.Printf("Failed to setup queues: %v", err)
+		}
 
 		msgs, err := ch.Consume("email_queue", "", false, false, false, false, nil)
 		if err != nil {
@@ -46,18 +48,18 @@ func processEmailMessage(msg amqp091.Delivery) {
 	ch := rabbitmq.GetChannel()
 	if ch == nil {
 		// Can't ack or publish — nack and requeue
-		msg.Nack(false, true)
+		_ = msg.Nack(false, true)
 		log.Println("No RabbitMQ channel available, message requeued")
 		return
 	}
 
 	var payload rabbitmq.QueueMessage
-	json.Unmarshal(msg.Body, &payload)
+	_ = json.Unmarshal(msg.Body, &payload)
 	log.Printf("Processing email message: %s", msg.Body)
 
 	if payload.NotificationID == 0 {
 		log.Println("Invalid notification ID (0)")
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		return
 	}
 
@@ -65,71 +67,67 @@ func processEmailMessage(msg amqp091.Delivery) {
 	errDB := db.DB.First(&entry, payload.NotificationID).Error
 	if errDB != nil {
 		log.Println("Notification not found:", payload.NotificationID)
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		return
 	}
 
 	// Idempotency: skip if already in a terminal state
 	if entry.Status == models.StatusSent || entry.Status == models.StatusFailed {
 		log.Printf("Idempotency: notification %d already %s, skipping", payload.NotificationID, entry.Status)
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		return
 	}
 
 	entry.Status = models.StatusProcessing
-	db.DB.Save(&entry)
+	_ = db.DB.Save(&entry).Error
 
 	err := email.SendEmail(payload.To, payload.Subject, payload.Body)
 	if err != nil {
 		entry.Retries++
-		db.DB.Save(&entry)
+		_ = db.DB.Save(&entry).Error
 
 		if entry.Retries > 3 {
 			entry.Status = models.StatusFailed
 			entry.Error = err.Error()
-			db.DB.Save(&entry)
+			_ = db.DB.Save(&entry).Error
 
-			ch.Publish(
-				"",
-				"email_dlq",
-				false,
-				false,
+			if pubErr := ch.Publish(
+				"", "email_dlq", false, false,
 				amqp091.Publishing{
 					ContentType: "application/json",
 					Body:        msg.Body,
 				},
-			)
+			); pubErr != nil {
+				log.Printf("Failed to publish to email_dlq: %v", pubErr)
+			}
 
-			msg.Ack(false)
+			_ = msg.Ack(false)
 			return
 		}
 
 		// Use DLX-based retry: publish to retry exchange with per-message TTL.
-		// RabbitMQ will route it back to email_queue when TTL expires.
-		// No in-process goroutine — zero data-loss risk on process restart.
 		backoff := time.Second * time.Duration(entry.Retries*entry.Retries)
 		nextRetry := time.Now().Add(backoff)
 
 		entry.Status = models.StatusRetrying
 		entry.NextAttemptAt = &nextRetry
 		entry.Error = err.Error()
-		db.DB.Save(&entry)
+		_ = db.DB.Save(&entry).Error
 
 		if retryErr := rabbitmq.PublishRetry(payload, backoff); retryErr != nil {
 			log.Printf("Failed to publish retry for notification %d: %v", payload.NotificationID, retryErr)
-			// Fall back: leave message unacked so it requeues
-			msg.Nack(false, true)
+			_ = msg.Nack(false, true)
 			return
 		}
 
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		return
 	}
 
 	entry.Status = models.StatusSent
 	entry.Error = ""
-	db.DB.Save(&entry)
-	msg.Ack(false)
+	_ = db.DB.Save(&entry).Error
+	_ = msg.Ack(false)
 }
 
 func StartSMSWorker() {
@@ -141,7 +139,9 @@ func StartSMSWorker() {
 		}
 
 		// Ensure queues exist before consuming (idempotent, safe on reconnect)
-		rabbitmq.SetupQueue()
+		if err := rabbitmq.SetupQueue(); err != nil {
+			log.Printf("Failed to setup queues: %v", err)
+		}
 
 		msgs, err := ch.Consume("sms_queue", "", false, false, false, false, nil)
 		if err != nil {
@@ -163,81 +163,79 @@ func StartSMSWorker() {
 func processSMSMessage(msg amqp091.Delivery) {
 	ch := rabbitmq.GetChannel()
 	if ch == nil {
-		msg.Nack(false, true)
+		_ = msg.Nack(false, true)
 		log.Println("No RabbitMQ channel available, message requeued")
 		return
 	}
 
 	var payload rabbitmq.QueueMessage
-	json.Unmarshal(msg.Body, &payload)
+	_ = json.Unmarshal(msg.Body, &payload)
 	log.Printf("Processing SMS message: %s", msg.Body)
 
 	if payload.NotificationID == 0 {
 		log.Println("Invalid notification ID (0)")
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		return
 	}
 
 	var entry models.Notification
-	db.DB.First(&entry, payload.NotificationID)
+	_ = db.DB.First(&entry, payload.NotificationID).Error
 
 	// Idempotency: skip if already in a terminal state
 	if entry.Status == models.StatusSent || entry.Status == models.StatusFailed {
 		log.Printf("Idempotency: notification %d already %s, skipping", payload.NotificationID, entry.Status)
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		return
 	}
 
 	entry.Status = models.StatusProcessing
-	db.DB.Save(&entry)
+	_ = db.DB.Save(&entry).Error
 
 	err := sms.SendSMSWithFailover(payload.To, payload.Body)
 	if err != nil {
 		entry.Retries++
-		db.DB.Save(&entry)
+		_ = db.DB.Save(&entry).Error
 
 		if entry.Retries > 3 {
 			entry.Status = models.StatusFailed
 			entry.Error = err.Error()
-			db.DB.Save(&entry)
+			_ = db.DB.Save(&entry).Error
 
-			ch.Publish(
-				"",
-				"sms_dlq",
-				false,
-				false,
+			if pubErr := ch.Publish(
+				"", "sms_dlq", false, false,
 				amqp091.Publishing{
 					ContentType: "application/json",
 					Body:        msg.Body,
 				},
-			)
+			); pubErr != nil {
+				log.Printf("Failed to publish to sms_dlq: %v", pubErr)
+			}
 
-			msg.Ack(false)
+			_ = msg.Ack(false)
 			return
 		}
 
 		// Use DLX-based retry: publish to retry exchange with per-message TTL.
-		// RabbitMQ will route it back to sms_queue when TTL expires.
 		backoff := time.Second * time.Duration(entry.Retries*entry.Retries)
 		nextRetry := time.Now().Add(backoff)
 
 		entry.Status = models.StatusRetrying
 		entry.NextAttemptAt = &nextRetry
 		entry.Error = err.Error()
-		db.DB.Save(&entry)
+		_ = db.DB.Save(&entry).Error
 
 		if retryErr := rabbitmq.PublishRetry(payload, backoff); retryErr != nil {
 			log.Printf("Failed to publish retry for notification %d: %v", payload.NotificationID, retryErr)
-			msg.Nack(false, true)
+			_ = msg.Nack(false, true)
 			return
 		}
 
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		return
 	}
 
 	entry.Status = models.StatusSent
 	entry.Error = ""
-	db.DB.Save(&entry)
-	msg.Ack(false)
+	_ = db.DB.Save(&entry).Error
+	_ = msg.Ack(false)
 }

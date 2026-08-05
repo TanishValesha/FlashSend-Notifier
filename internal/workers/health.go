@@ -23,12 +23,12 @@ func StartHealthServer() {
 		if !rabbitmq.IsConnected() {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte(`{"status":"unhealthy","rabbitmq":"unhealthy"}`))
+			_, _ = w.Write([]byte(`{"status":"unhealthy","rabbitmq":"unhealthy"}`))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"healthy","rabbitmq":"ok"}`))
+		_, _ = w.Write([]byte(`{"status":"healthy","rabbitmq":"ok"}`))
 	})
 
 	healthServer = &http.Server{

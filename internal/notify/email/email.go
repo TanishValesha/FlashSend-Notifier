@@ -87,6 +87,6 @@ func SendEmail(to, subject, body string) error {
 		return fmt.Errorf("close failed: %w", err)
 	}
 
-	c.Quit()
+	_ = c.Quit()
 	return nil
 }

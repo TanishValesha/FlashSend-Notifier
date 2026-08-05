@@ -36,7 +36,7 @@ func EmailNotifyHandler(c *gin.Context) {
 		Status:  models.StatusQueued,
 	}
 
-	logger.LogNotification(&entry)
+	_ = logger.LogNotification(&entry)
 
 	msg := rabbitmq.QueueMessage{
 		NotificationID:      entry.ID,
@@ -78,7 +78,7 @@ func SMSNotifyHandler(c *gin.Context) {
 		Status:  models.StatusQueued,
 	}
 
-	logger.LogNotification(&entry)
+	_ = logger.LogNotification(&entry)
 
 	msg := rabbitmq.QueueMessage{
 		NotificationID:      entry.ID,
@@ -184,11 +184,11 @@ func UnifiedNotifyHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		entry.Status = "failed"
 		entry.Error = err.Error()
-		logger.LogNotification(&entry)
+		_ = logger.LogNotification(&entry)
 		return
 	}
 
-	logger.LogNotification(&entry)
+	_ = logger.LogNotification(&entry)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Notification sent"})
 }
