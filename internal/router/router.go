@@ -43,10 +43,11 @@ func Init(version, buildTime string) *gin.Engine {
 		}
 
 		c.JSON(status, gin.H{
-			"status":   map[bool]string{true: "healthy", false: "unhealthy"}[status == http.StatusOK],
-			"db":       dbStatus,
-			"rabbitmq": mqStatus,
-			"version":  version,
+			"status":    map[bool]string{true: "healthy", false: "unhealthy"}[status == http.StatusOK],
+			"buildTime": buildTime,
+			"db":        dbStatus,
+			"rabbitmq":  mqStatus,
+			"version":   version,
 		})
 	})
 
