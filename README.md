@@ -2,6 +2,9 @@
 
 [![Deploy](https://github.com/TanishValesha/FlashSend-Notifier/actions/workflows/deploy.yaml/badge.svg)](https://github.com/TanishValesha/FlashSend-Notifier/actions)
 
+Live Link - http://54.147.215.253 (Deployed on AWS)  
+Swagger API Documentation - http://54.147.215.253/swagger/index.html
+
 Documentation Link - https://www.postman.com/aviation-explorer-43162805/workspace/flashsend/collection/32893876-55304a29-1526-4b46-accd-74767dc59941?action=share&creator=32893876
 
 FlashSend is a **Go-based distributed notification delivery system** designed to reliably send SMS, Email, and scheduled notifications at scale. It uses a **RabbitMQ-powered asynchronous worker architecture** with retries, dead-letter queues (DLQ), DB-backed scheduling, and automatic SMS provider failover (Twilio → Vonage) to guarantee delivery even during traffic spikes and third-party outages.
