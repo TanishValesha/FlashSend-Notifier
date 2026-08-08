@@ -1,0 +1,471 @@
+basePath: /
+definitions:
+  github_com_TanishValesha_FlashSend-Notifier_internal_models.APIKey:
+    properties:
+      active:
+        type: boolean
+      createdAt:
+        type: string
+      id:
+        type: integer
+      key:
+        type: string
+      userId:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Tanish Valesha
+    url: https://github.com/TanishValesha/FlashSend-Notifier
+  description: Multi-channel notification service (Email & SMS) with scheduling, queuing,
+    and API key management.
+  termsOfService: https://github.com/TanishValesha/FlashSend-Notifier
+  title: FlashSend Notifier API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user with email and password, returns a JWT token.
+      parameters:
+      - description: Login payload
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              token:
+                type: string
+              user:
+                properties:
+                  email:
+                    type: string
+                  id:
+                    type: integer
+                type: object
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Login
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and returns a JWT token.
+      parameters:
+      - description: Registration payload
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              token:
+                type: string
+              user:
+                properties:
+                  email:
+                    type: string
+                  id:
+                    type: integer
+                type: object
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Auth
+  /api/keys/:
+    get:
+      description: Returns all API keys belonging to the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              keys:
+                items:
+                  $ref: '#/definitions/github_com_TanishValesha_FlashSend-Notifier_internal_models.APIKey'
+                type: array
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List API Keys
+      tags:
+      - API Keys
+    post:
+      description: Generates a new API key for the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              key:
+                type: string
+              message:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create API Key
+      tags:
+      - API Keys
+  /api/keys/{id}:
+    delete:
+      description: Deletes a specific API key belonging to the authenticated user.
+      parameters:
+      - description: API Key ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete API Key
+      tags:
+      - API Keys
+  /api/keys/toggle/{id}:
+    patch:
+      description: Enables or disables a specific API key.
+      parameters:
+      - description: API Key ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              active:
+                type: boolean
+              message:
+                type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Toggle API Key
+      tags:
+      - API Keys
+  /api/notify/email:
+    post:
+      consumes:
+      - application/json
+      description: Queues an email notification to be sent via the worker.
+      parameters:
+      - description: Email payload
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            body:
+              type: string
+            subject:
+              type: string
+            to:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              id:
+                type: integer
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Send Email Notification
+      tags:
+      - Notifications
+  /api/notify/schedule:
+    post:
+      consumes:
+      - application/json
+      description: Schedules a notification (email or SMS) to be sent at a future
+        time.
+      parameters:
+      - description: Schedule payload
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            body:
+              type: string
+            channel:
+              type: string
+            scheduled_at:
+              type: string
+            subject:
+              type: string
+            to:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              id:
+                type: integer
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Schedule Notification
+      tags:
+      - Notifications
+  /api/notify/send:
+    post:
+      consumes:
+      - application/json
+      description: Sends a notification (email or SMS) synchronously without queuing.
+      parameters:
+      - description: Unified notification payload
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            body:
+              type: string
+            channel:
+              type: string
+            subject:
+              type: string
+            to:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Send Unified Notification
+      tags:
+      - Notifications
+  /api/notify/sms:
+    post:
+      consumes:
+      - application/json
+      description: Queues an SMS notification to be sent via the worker.
+      parameters:
+      - description: SMS payload
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            body:
+              type: string
+            to:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              id:
+                type: integer
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Send SMS Notification
+      tags:
+      - Notifications
+securityDefinitions:
+  ApiKeyAuth:
+    description: API Key for notification endpoints.
+    in: header
+    name: X-API-Key
+    type: apiKey
+  BearerAuth:
+    description: 'Type "Bearer " followed by your JWT token. Example: Bearer eyJhbGciOi...'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

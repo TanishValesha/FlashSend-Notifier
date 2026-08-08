@@ -10,6 +10,9 @@ import (
 	notify "github.com/TanishValesha/FlashSend-Notifier/internal/notify"
 	rabbitmq "github.com/TanishValesha/FlashSend-Notifier/internal/rabbitMQ"
 	"github.com/gin-gonic/gin"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Init(version, buildTime string) *gin.Engine {
@@ -17,14 +20,30 @@ func Init(version, buildTime string) *gin.Engine {
 
 	router := gin.Default()
 
+	// Swagger UI
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Ping godoc
+	// @Summary      Ping
+	// @Description  Simple health check endpoint.
+	// @Tags         System
+	// @Produce      json
+	// @Success      200  {object}  object{message=string}
+	// @Router       /ping [get]
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
-	// Health endpoint — checks DB and RabbitMQ connectivity.
-	// Used by Kubernetes liveness/readiness probes.
+	// Health godoc
+	// @Summary      Health Check
+	// @Description  Checks DB and RabbitMQ connectivity. Used by Kubernetes liveness/readiness probes.
+	// @Tags         System
+	// @Produce      json
+	// @Success      200  {object}  object{status=string,buildTime=string,db=string,rabbitmq=string,version=string}
+	// @Failure      503  {object}  object{status=string,buildTime=string,db=string,rabbitmq=string,version=string}
+	// @Router       /health [get]
 	router.GET("/health", func(c *gin.Context) {
 		dbStatus := "ok"
 		mqStatus := "ok"
@@ -62,6 +81,14 @@ func Init(version, buildTime string) *gin.Engine {
 	protected := apiGroup.Group("/")
 	protected.Use(auth.JWTMiddleware())
 	{
+		// GetUser godoc
+		// @Summary      Get Current User
+		// @Description  Returns the authenticated user's ID and email.
+		// @Tags         User
+		// @Produce      json
+		// @Security     BearerAuth
+		// @Success      200  {object}  object{user_id=float64,email=string}
+		// @Router       /api/get-user [get]
 		protected.GET("/get-user", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"user_id": c.GetFloat64("user_id"),
@@ -69,6 +96,14 @@ func Init(version, buildTime string) *gin.Engine {
 			})
 		})
 
+		// GetLogs godoc
+		// @Summary      Get Logs
+		// @Description  Returns recent notification logs for the authenticated user.
+		// @Tags         Logs
+		// @Produce      json
+		// @Security     BearerAuth
+		// @Success      200  {object}  object{logs=[]models.Notification}
+		// @Router       /api/logs [get]
 		protected.GET("/logs", logger.GetLogsHandler)
 
 		keysGroup := protected.Group("/keys")

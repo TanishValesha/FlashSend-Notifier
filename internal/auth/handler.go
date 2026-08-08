@@ -6,6 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RegisterHandler registers a new user account.
+// @Summary      Register a new user
+// @Description  Creates a new user account and returns a JWT token.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      object{email=string,password=string}  true  "Registration payload"
+// @Success      200   {object}  object{user=object{id=uint,email=string},token=string}
+// @Failure      400   {object}  object{error=string}
+// @Failure      500   {object}  object{error=string}
+// @Router       /api/auth/register [post]
 func RegisterHandler(c *gin.Context) {
 	var body struct {
 		Email    string `json:"email" binding:"required,email"`
@@ -35,6 +46,18 @@ func RegisterHandler(c *gin.Context) {
 	})
 }
 
+// LoginHandler authenticates a user.
+// @Summary      Login
+// @Description  Authenticates a user with email and password, returns a JWT token.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      object{email=string,password=string}  true  "Login payload"
+// @Success      200   {object}  object{user=object{id=uint,email=string},token=string}
+// @Failure      400   {object}  object{error=string}
+// @Failure      401   {object}  object{error=string}
+// @Failure      500   {object}  object{error=string}
+// @Router       /api/auth/login [post]
 func LoginHandler(c *gin.Context) {
 	var body struct {
 		Email    string `json:"email" binding:"required,email"`

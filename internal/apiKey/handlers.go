@@ -8,6 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateAPIKeyHandler generates a new API key for the authenticated user.
+// @Summary      Create API Key
+// @Description  Generates a new API key for the authenticated user.
+// @Tags         API Keys
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  object{message=string,key=string}
+// @Failure      500  {object}  object{error=string}
+// @Router       /api/keys/ [post]
 func CreateAPIKeyHandler(c *gin.Context) {
 	user_id := uint(c.GetFloat64("user_id"))
 
@@ -35,6 +44,15 @@ func CreateAPIKeyHandler(c *gin.Context) {
 	})
 }
 
+// ListAllAPIKeys lists all API keys for the authenticated user.
+// @Summary      List API Keys
+// @Description  Returns all API keys belonging to the authenticated user.
+// @Tags         API Keys
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  object{keys=[]models.APIKey}
+// @Failure      500  {object}  object{error=string}
+// @Router       /api/keys/ [get]
 func ListAllAPIKeys(c *gin.Context) {
 	user_id := uint(c.GetFloat64("user_id"))
 
@@ -48,6 +66,16 @@ func ListAllAPIKeys(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"keys": keys})
 }
 
+// DeleteAPIKeyHandler deletes an API key by ID.
+// @Summary      Delete API Key
+// @Description  Deletes a specific API key belonging to the authenticated user.
+// @Tags         API Keys
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "API Key ID"
+// @Success      200  {object}  object{message=string}
+// @Failure      404  {object}  object{error=string}
+// @Router       /api/keys/{id} [delete]
 func DeleteAPIKeyHandler(c *gin.Context) {
 	userID := uint(c.GetFloat64("user_id"))
 	id := c.Param("id")
@@ -62,6 +90,16 @@ func DeleteAPIKeyHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "API Key deleted"})
 }
 
+// ToggleAPIKey toggles the active status of an API key.
+// @Summary      Toggle API Key
+// @Description  Enables or disables a specific API key.
+// @Tags         API Keys
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "API Key ID"
+// @Success      200  {object}  object{message=string,active=bool}
+// @Failure      404  {object}  object{error=string}
+// @Router       /api/keys/toggle/{id} [patch]
 func ToggleAPIKey(c *gin.Context) {
 	userID := uint(c.GetFloat64("user_id"))
 	id := c.Param("id")

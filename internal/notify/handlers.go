@@ -17,6 +17,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// EmailNotifyHandler queues an email notification.
+// @Summary      Send Email Notification
+// @Description  Queues an email notification to be sent via the worker.
+// @Tags         Notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Security     ApiKeyAuth
+// @Param        body  body      object{to=string,subject=string,body=string}  true  "Email payload"
+// @Success      200   {object}  object{message=string,id=uint}
+// @Failure      400   {object}  object{error=string}
+// @Failure      500   {object}  object{error=string}
+// @Router       /api/notify/email [post]
 func EmailNotifyHandler(c *gin.Context) {
 	var req email.EmailRequest
 	var entry models.Notification
@@ -61,6 +74,19 @@ func EmailNotifyHandler(c *gin.Context) {
 	})
 }
 
+// SMSNotifyHandler queues an SMS notification.
+// @Summary      Send SMS Notification
+// @Description  Queues an SMS notification to be sent via the worker.
+// @Tags         Notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Security     ApiKeyAuth
+// @Param        body  body      object{to=string,body=string}  true  "SMS payload"
+// @Success      200   {object}  object{message=string,id=uint}
+// @Failure      400   {object}  object{error=string}
+// @Failure      500   {object}  object{error=string}
+// @Router       /api/notify/sms [post]
 func SMSNotifyHandler(c *gin.Context) {
 	var req sms.SMSRequest
 	var entry models.Notification
@@ -102,6 +128,19 @@ func SMSNotifyHandler(c *gin.Context) {
 	})
 }
 
+// ScheduledNotificationHandler creates a scheduled notification.
+// @Summary      Schedule Notification
+// @Description  Schedules a notification (email or SMS) to be sent at a future time.
+// @Tags         Notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Security     ApiKeyAuth
+// @Param        body  body      object{channel=string,to=string,subject=string,body=string,scheduled_at=string}  true  "Schedule payload"
+// @Success      200   {object}  object{message=string,id=uint}
+// @Failure      400   {object}  object{error=string}
+// @Failure      500   {object}  object{error=string}
+// @Router       /api/notify/schedule [post]
 func ScheduledNotificationHandler(c *gin.Context) {
 	var req struct {
 		Channel     string  `json:"channel"`
@@ -150,6 +189,19 @@ func ScheduledNotificationHandler(c *gin.Context) {
 	})
 }
 
+// UnifiedNotifyHandler sends a notification directly (synchronous).
+// @Summary      Send Unified Notification
+// @Description  Sends a notification (email or SMS) synchronously without queuing.
+// @Tags         Notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Security     ApiKeyAuth
+// @Param        body  body      object{channel=string,to=string,subject=string,body=string}  true  "Unified notification payload"
+// @Success      200   {object}  object{message=string}
+// @Failure      400   {object}  object{error=string}
+// @Failure      500   {object}  object{error=string}
+// @Router       /api/notify/send [post]
 func UnifiedNotifyHandler(c *gin.Context) {
 	var req models.UnifiedRequest
 	var entry models.Notification

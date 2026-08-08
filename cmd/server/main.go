@@ -13,7 +13,30 @@ import (
 	"github.com/TanishValesha/FlashSend-Notifier/internal/db"
 	rabbitmq "github.com/TanishValesha/FlashSend-Notifier/internal/rabbitMQ"
 	"github.com/TanishValesha/FlashSend-Notifier/internal/router"
+
+	_ "github.com/TanishValesha/FlashSend-Notifier/docs"
 )
+
+// @title           FlashSend Notifier API
+// @version         1.0
+// @description     Multi-channel notification service (Email & SMS) with scheduling, queuing, and API key management.
+// @termsOfService  https://github.com/TanishValesha/FlashSend-Notifier
+
+// @contact.name   Tanish Valesha
+// @contact.url    https://github.com/TanishValesha/FlashSend-Notifier
+
+// @host      localhost:8080
+// @BasePath  /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer " followed by your JWT token. Example: Bearer eyJhbGciOi...
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-API-Key
+// @description API Key for notification endpoints.
 
 // Injected at build time via ldflags
 var (
